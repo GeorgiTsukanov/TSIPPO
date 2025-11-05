@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Курсы валют онлайн</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Currency<span>Tracker</span></div>
+                <nav>
+                    <ul>
+                        <li><a href="">Главная</a></li>
+                        <li><a href="">Курсы валют</a></li>
+                        <li><a href="">Калькулятор</a></li>
+                        <li><a href="">Аналитика</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div class="container">
+            <h1>Актуальные курсы валют</h1>
+            <p>Следите за изменениями курсов валют в реальном времени</p>
+        </div>
+    </section>
+    
+    <div class="container">
+        <div class="main-content">
+            <section class="currency-table">
+                <h2 class="section-title">
+                    Курсы валют к рублю 
+                    <br>
+                    <span class="update-time">Обновлено: 29.10.2025 10:30 МСК</span>
+                </h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Валюта</th>
+                            <th>Код</th>
+                            <th>Курс ЦБ РФ</th>
+                            <th>Изменение</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="clickable-row" data-currency="test">
+                            <td><img src="flags/USD.png" class="currency-flag" alt="Флаг США"> Доллар США</td>
+                            <td>USD</td>
+                            <td>92,45 ₽</td>
+                            <td class="change-positive">+0,25%</td>
+                        </tr>
+                        <tr class="clickable-row" data-currency="EUR">
+                            <td><img src="flags/EUR.png" class="currency-flag" alt="Флаг ЕС"> Евро</td>
+                            <td>EUR</td>
+                            <td>101,20 ₽</td>
+                            <td class="change-negative">-0,15%</td>
+                        </tr>
+                        <tr class="clickable-row" data-currency="CNY">
+                            <td><img src="flags/CNY.png" class="currency-flag" alt="Флаг Китая"> Китайский юань</td>
+                            <td>CNY</td>
+                            <td>12,85 ₽</td>
+                            <td class="change-negative">-0,05%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+            
+            <section class="calculator">
+                <h2 class="section-title">Калькулятор валют</h2>
+                <div class="calculator-form">
+                    <div class="form-group">
+                        <label for="amount">Сумма</label>
+                        <input type="number" id="amount" value="1000" min="1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="from-currency">Из валюты</label>
+                        <select id="from-currency">
+                            <option value="RUB">Российский рубль (RUB)</option>
+                            <option value="USD" selected>Доллар США (USD)</option>
+                            <option value="EUR">Евро (EUR)</option>
+                            <option value="CNY">Китайский юань (CNY)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="to-currency">В валюту</label>
+                        <select id="to-currency">
+                            <option value="RUB" selected>Российский рубль (RUB)</option>
+                            <option value="USD">Доллар США (USD)</option>
+                            <option value="EUR">Евро (EUR)</option>
+                            <option value="CNY">Китайский юань (CNY)</option>
+                        </select>
+                    </div>
+                                        
+                    <div class="result" id="conversion-result">
+                        1000 USD = 92450 RUB
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="logo">Currency<span>Tracker</span></div>
+                <div class="footer-links">
+                    <a href="#">О нас</a>
+                    <a href="#">Контакты</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="script.js" defer></script>
+</body>
+
+</html>
