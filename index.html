@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurrencyTracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #d4d5d9 0%, #e44949 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+        }
+
+        .currency-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            max-width: 600px;
+        }
+
+        .currency-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .currency-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            margin-top: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .search-dropdown.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .dropdown-item .currency-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .dropdown-item .currency-code {
+            font-weight: 500;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .currencies-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .currency-card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            min-height: 100px;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            border: 2px solid transparent;
+        }
+
+        .currency-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+            border-color: #667eea;
+        }
+
+        .currency-card.highlighted {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.3);
+            animation: pulse 1.5s infinite;
+        }
+
+        .currency-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .currency-name {
+            font-weight: 700;
+            font-size: 18px;
+            color: #373b43;
+            line-height: 1.3;
+        }
+
+        .currency-code {
+            font-weight: 600;
+            font-size: 14px;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+
+        .currency-rate {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .rate-value {
+            font-weight: 700;
+            font-size: 24px;
+            color: #d35400;
+            line-height: 1.2;
+        }
+
+        .rate-label {
+            font-weight: 600;
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .currency-change {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .change-value {
+            font-weight: 700;
+            font-size: 18px;
+            line-height: 1.2;
+        }
+
+        .change-value.negative {
+            color: #c0392b;
+        }
+
+        .change-value.positive {
+            color: #27ae60;
+        }
+
+        .change-label {
+            font-weight: 600;
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Адаптивность для планшетов */
+        @media (max-width: 768px) {
+            .currency-card {
+                padding: 20px;
+                min-height: 90px;
+            }
+
+            .currency-name {
+                font-size: 16px;
+            }
+
+            .rate-value {
+                font-size: 22px;
+            }
+
+            .change-value {
+                font-size: 16px;
+            }
+        }
+        
+        /* Адаптивность для мобильных */
+        @media (max-width: 480px) {
+            body {
+                padding: 20px 15px;
+            }
+
+            .currency-header h1 {
+                font-size: 2rem;
+            }
+
+            .currency-header p {
+                font-size: 1rem;
+            }
+
+            .currencies-container {
+                gap: 16px;
+            }
+
+            .currency-card {
+                padding: 16px;
+                min-height: 80px;
+                flex-direction: row; /* Основное изменение - оставляем row вместо column */
+                gap: 12px;
+                align-items: center;
+                width: 100%; /* Возвращаем 100% ширины */
+                flex-wrap: wrap; /* Добавляем перенос при необходимости */
+            }
+
+            .currency-info {
+                text-align: left;
+                border-bottom: none; /* Убираем разделительную линию */
+                padding-bottom: 0;
+                flex: 1 1 40%; /* Занимает 40% ширины, может сжиматься/растягиваться */
+                min-width: 120px; /* Минимальная ширина чтобы текст не сжимался */
+            }
+
+            .currency-details {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex: 1 1 60%; /* Занимает оставшиеся 60% */
+                gap: 10px; /* Добавляем отступ между элементами */
+            }
+
+            .currency-rate,
+            .currency-change {
+                align-items: flex-end; /* Выравниваем по правому краю */
+                flex: 1; /* Равномерное распределение пространства */
+                min-width: 80px; /* Минимальная ширина для предотвращения сжатия */
+            }
+
+            .rate-value {
+                font-size: 18px; /* Немного уменьшаем размер шрифта */
+            }
+
+            .change-value {
+                font-size: 14px;
+            }
+
+            .rate-label,
+            .change-label {
+                font-size: 10px; /* Уменьшаем размер подписей */
+                text-align: right; /* Выравниваем текст по правому краю */
+            }
+
+            .search-dropdown {
+                max-height: 150px;
+            }
+
+            .dropdown-item {
+                padding: 10px 15px;
+            }
+        }
+        
+        /* Анимация появления */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Анимация пульсации для подсветки */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(45, 45, 45, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+            }
+        }
+
+        .currency-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .currency-card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .currency-card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .currency-card:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        /* Стили для фиксированной шапки */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(205, 203, 203, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            padding: 0;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            color: #cc3737;
+            margin: 0;
+        }
+
+        /* Десктопная навигация */
+        .desktop-nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #892d2d;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background-color: #874b4b;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Кнопка мобильного меню */
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            gap: 4px;
+        }
+
+        .mobile-menu-btn span {
+            width: 25px;
+            height: 3px;
+            background-color: #5e2b2b;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .mobile-menu-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+
+        .mobile-menu-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-menu-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        /* Мобильная навигация */
+        .mobile-nav {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 12px 12px;
+            overflow: hidden;
+        }
+
+        .mobile-nav.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mobile-nav .nav-link {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
+        }
+
+        .mobile-nav .nav-link:last-child {
+            border-bottom: none;
+        }
+
+        /* Основной контент */
+        .main-content {
+            margin-top: 70px; /* Высота шапки */
+            width: 100%;
+        }
+
+        /* Стили для подвала */
+        .footer {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+
+        .footer-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .footer-logo {
+            height: 40px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+
+        .footer-copyright {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        /* Адаптивность для планшетов */
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 15px;
+                height: 60px;
+            }
+            
+            .logo h1 {
+                font-size: 1.3rem;
+            }
+            
+            .desktop-nav {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: flex;
+            }
+            
+            .main-content {
+                margin-top: 60px;
+            }
+        }
+
+        /* Адаптивность для мобильных */
+        @media (max-width: 480px) {
+            .header-container {
+                padding: 0 10px;
+            }
+            
+            .logo h1 {
+                font-size: 1.1rem;
+            }
+            
+            .footer-container {
+                padding: 0 15px;
+            }
+            
+            .footer-link {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .footer-logo {
+                height: 35px;
+            }
+        }
+    </style>
+</head>
+
+<!--
+<header class="header">
+    <div class="header-container">
+        <div class="logo">
+            <h1>CurrencyTracker</h1>
+        </div>
+        
+        <nav class="desktop-nav">
+            <a href="#main" class="nav-link">Главная</a>
+            <a href="#about" class="nav-link">Аналитика</a>
+        </nav>
+        
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        
+        <div class="mobile-nav" id="mobileNav">
+            <a href="#main" class="nav-link">Главная</a>
+            <a href="#about" class="nav-link">Аналитика</a>
+        </div>
+    </div>
+</header>
+-->
+
+<body>
+    <div class="currency-header">
+        <h1>Курсы валют ЦБ РФ</h1>
+        <p>Актуальные курсы на сегодня</p>
+    </div>
+
+    <div class="search-container">
+        <input type="text" class="search-input" placeholder="Поиск валюты (USD, EUR, CNY, GBP)" id="currencySearch">
+        <div class="search-dropdown" id="searchDropdown"></div>
+    </div>
+
+    <div class="currencies-container">
+        <!-- Карточка доллара -->
+        <a href="usd.html" class="currency-card" data-currency="USD" data-code="USD" id="card-USD">
+            <div class="currency-info">
+                <div class="currency-name">Доллар США</div>
+                <div class="currency-code">USD</div>
+            </div>
+            <div class="currency-rate">
+                <div class="rate-label">Курс ЦБ</div>
+                <div class="rate-value">90.05₽</div>
+            </div>
+            <div class="currency-change">
+                <div class="change-label">Изменение</div>
+                <div class="change-value negative">-0.08₽</div>
+            </div>
+        </a>
+
+        <!-- Карточка евро -->
+        <a href="" class="currency-card" data-currency="EUR" data-code="EUR" id="card-EUR">
+            <div class="currency-info">
+                <div class="currency-name">Евро</div>
+                <div class="currency-code">EUR</div>
+            </div>
+            <div class="currency-rate">
+                <div class="rate-label">Курс ЦБ</div>
+                <div class="rate-value">97.42₽</div>
+            </div>
+            <div class="currency-change">
+                <div class="change-label">Изменение</div>
+                <div class="change-value positive">+0.12₽</div>
+            </div>
+        </a>
+
+        <!-- Карточка юаня -->
+        <a href="" class="currency-card" data-currency="CNY" data-code="CNY" id="card-CNY">
+            <div class="currency-info">
+                <div class="currency-name">Китайский юань</div>
+                <div class="currency-code">CNY</div>
+            </div>
+            <div class="currency-rate">
+                <div class="rate-label">Курс ЦБ</div>
+                <div class="rate-value">12.58₽</div>
+            </div>
+            <div class="currency-change">
+                <div class="change-label">Изменение</div>
+                <div class="change-value negative">-0.03₽</div>
+            </div>
+        </a>
+
+        <!-- Карточка фунта -->
+        <a href="" class="currency-card" data-currency="GBP" data-code="GBP" id="card-GBP">
+            <div class="currency-info">
+                <div class="currency-name">Фунт стерлингов</div>
+                <div class="currency-code">GBP</div>
+            </div>
+            <div class="currency-rate">
+                <div class="rate-label">Курс ЦБ</div>
+                <div class="rate-value">114.76₽</div>
+            </div>
+            <div class="currency-change">
+                <div class="change-label">Изменение</div>
+                <div class="change-value positive">+0.24₽</div>
+            </div>
+        </a>
+    </div>
+
+    <script>
+        // Обновляем дату в заголовке
+        const now = new Date();
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        const dateString = now.toLocaleDateString('ru-RU', options);
+        document.querySelector('.currency-header p').textContent = `Актуальные курсы на ${dateString}`;
+
+        // Автоматическое определение положительных/отрицательных изменений
+        document.querySelectorAll('.change-value').forEach(element => {
+            const text = element.textContent;
+            if (text.startsWith('+')) {
+                element.classList.add('positive');
+            } else if (text.startsWith('-')) {
+                element.classList.add('negative');
+            }
+        });
+
+        // Данные для поиска
+        const currencyData = [
+            { name: 'Доллар США', code: 'USD', id: 'card-USD' },
+            { name: 'Евро', code: 'EUR', id: 'card-EUR' },
+            { name: 'Китайский юань', code: 'CNY', id: 'card-CNY' },
+            { name: 'Фунт стерлингов', code: 'GBP', id: 'card-GBP' }
+        ];
+
+        // Элементы DOM
+        const searchInput = document.getElementById('currencySearch');
+        const searchDropdown = document.getElementById('searchDropdown');
+        const currencyCards = document.querySelectorAll('.currency-card');
+
+        // Функция для показа выпадающего списка
+        function showDropdown(items) {
+            searchDropdown.innerHTML = '';
+            
+            if (items.length === 0) {
+                searchDropdown.classList.remove('active');
+                return;
+            }
+            
+            items.forEach(item => {
+                const dropdownItem = document.createElement('div');
+                dropdownItem.className = 'dropdown-item';
+                dropdownItem.innerHTML = `
+                    <span class="currency-name">${item.name}</span>
+                    <span class="currency-code">${item.code}</span>
+                `;
+                
+                dropdownItem.addEventListener('click', () => {
+                    searchInput.value = item.name;
+                    searchDropdown.classList.remove('active');
+                    scrollToCurrency(item.id);
+                });
+                
+                searchDropdown.appendChild(dropdownItem);
+            });
+            
+            searchDropdown.classList.add('active');
+        }
+
+        // Функция для прокрутки к валюте
+        function scrollToCurrency(cardId) {
+            const card = document.getElementById(cardId);
+            if (card) {
+                // Убираем подсветку со всех карточек
+                currencyCards.forEach(c => c.classList.remove('highlighted'));
+                
+                // Подсвечиваем нужную карточку
+                card.classList.add('highlighted');
+                
+                // Плавная прокрутка к карточке
+                card.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+                
+                // Убираем подсветку через 3 секунды
+                setTimeout(() => {
+                    card.classList.remove('highlighted');
+                }, 3000);
+            }
+        }
+
+        // Функция для поиска валют
+        function searchCurrencies(searchTerm) {
+            if (searchTerm.length === 0) {
+                showDropdown([]);
+                return;
+            }
+            
+            const filteredCurrencies = currencyData.filter(currency => 
+                currency.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                currency.code.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            
+            showDropdown(filteredCurrencies);
+        }
+
+        // Обработчики событий
+        searchInput.addEventListener('input', function() {
+            searchCurrencies(this.value);
+        });
+
+        // Закрытие выпадающего списка при клике вне его
+        document.addEventListener('click', function(event) {
+            if (!searchContainer.contains(event.target)) {
+                searchDropdown.classList.remove('active');
+            }
+        });
+
+        // Обработка нажатия клавиш в поле поиска
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                searchDropdown.classList.remove('active');
+                this.blur();
+            }
+        });
+
+        const searchContainer = document.querySelector('.search-container');
+
+        // Обработка нажатия Enter в поле поиска
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const searchTerm = this.value.trim();
+                if (searchTerm) {
+                    const firstMatch = currencyData.find(currency => 
+                        currency.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        currency.code.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                    
+                    if (firstMatch) {
+                        scrollToCurrency(firstMatch.id);
+                        searchDropdown.classList.remove('active');
+                    }
+                }
+            }
+        });
+
+        // Добавь этот скрипт в существующий тег script
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+
+        mobileMenuBtn.addEventListener('click', function() {
+            this.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+        });
+
+        // Закрытие мобильного меню при клике на ссылку
+        document.querySelectorAll('.mobile-nav .nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuBtn.classList.remove('active');
+                mobileNav.classList.remove('active');
+            });
+        });
+
+        // Закрытие мобильного меню при клике вне его
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.header-container')) {
+                mobileMenuBtn.classList.remove('active');
+                mobileNav.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+
+<!--
+<footer class="footer">
+    <div class="footer-container">
+        <a href="https://www.cbr.ru/" class="footer-link" target="_blank">
+            <img src="https://www.cbr.ru/StaticHtml/File/121176/logo_en.png" alt="Центральный банк РФ" class="footer-logo">
+            <span>Официальный сайт ЦБ РФ</span>
+        </a>
+        <p class="footer-copyright">&copy; 2024 Курсы валют. Все права защищены.</p>
+    </div>
+</footer>
+-->
+
+</html>

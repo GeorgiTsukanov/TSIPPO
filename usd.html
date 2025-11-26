@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Курс USD - CurrencyTracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #d4d5d9 0%, #e44949 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+        }
+
+        .currency-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            max-width: 600px;
+        }
+
+        .currency-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .currency-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            margin-top: 15px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .currencies-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .currency-card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            min-height: 100px;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            border: 2px solid transparent;
+        }
+
+        .currency-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+            border-color: #667eea;
+        }
+
+        .currency-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .bank-name {
+            font-weight: 700;
+            font-size: 18px;
+            color: #373b43;
+            line-height: 1.3;
+        }
+
+        .bank-type {
+            font-weight: 600;
+            font-size: 14px;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+
+        .currency-rate {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .rate-value {
+            font-weight: 700;
+            font-size: 24px;
+            color: #d35400;
+            line-height: 1.2;
+        }
+
+        .rate-label {
+            font-weight: 600;
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .currency-change {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .change-value {
+            font-weight: 700;
+            font-size: 18px;
+            line-height: 1.2;
+        }
+
+        .change-value.negative {
+            color: #c0392b;
+        }
+
+        .change-value.positive {
+            color: #27ae60;
+        }
+
+        .change-label {
+            font-weight: 600;
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Адаптивность для планшетов */
+        @media (max-width: 768px) {
+            .currency-card {
+                padding: 20px;
+                min-height: 90px;
+            }
+
+            .bank-name {
+                font-size: 16px;
+            }
+
+            .rate-value {
+                font-size: 22px;
+            }
+
+            .change-value {
+                font-size: 16px;
+            }
+        }
+        
+        /* Адаптивность для мобильных */
+        @media (max-width: 480px) {
+            body {
+                padding: 20px 15px;
+            }
+
+            .currency-header h1 {
+                font-size: 2rem;
+            }
+
+            .currency-header p {
+                font-size: 1rem;
+            }
+
+            .currencies-container {
+                gap: 16px;
+            }
+
+            .currency-card {
+                padding: 16px;
+                min-height: 80px;
+                flex-direction: row;
+                gap: 12px;
+                align-items: center;
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .currency-info {
+                text-align: left;
+                border-bottom: none;
+                padding-bottom: 0;
+                flex: 1 1 40%;
+                min-width: 120px;
+            }
+
+            .currency-details {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex: 1 1 60%;
+                gap: 10px;
+            }
+
+            .currency-rate,
+            .currency-change {
+                align-items: flex-end;
+                flex: 1;
+                min-width: 80px;
+            }
+
+            .rate-value {
+                font-size: 18px;
+            }
+
+            .change-value {
+                font-size: 14px;
+            }
+
+            .rate-label,
+            .change-label {
+                font-size: 10px;
+                text-align: right;
+            }
+        }
+        
+        /* Анимация появления */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .currency-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .currency-card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .currency-card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        /* Стили для фиксированной шапки */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(205, 203, 203, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            padding: 0;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            color: #cc3737;
+            margin: 0;
+        }
+
+        /* Десктопная навигация */
+        .desktop-nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #892d2d;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background-color: #874b4b;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Кнопка мобильного меню */
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            gap: 4px;
+        }
+
+        .mobile-menu-btn span {
+            width: 25px;
+            height: 3px;
+            background-color: #5e2b2b;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .mobile-menu-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+
+        .mobile-menu-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-menu-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        /* Мобильная навигация */
+        .mobile-nav {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 12px 12px;
+            overflow: hidden;
+        }
+
+        .mobile-nav.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mobile-nav .nav-link {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
+        }
+
+        .mobile-nav .nav-link:last-child {
+            border-bottom: none;
+        }
+
+        /* Основной контент */
+        .main-content {
+            margin-top: 70px;
+            width: 100%;
+        }
+
+        /* Стили для подвала */
+        .footer {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+
+        .footer-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .footer-logo {
+            height: 40px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+
+        .footer-copyright {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        /* Адаптивность для планшетов */
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 15px;
+                height: 60px;
+            }
+            
+            .logo h1 {
+                font-size: 1.3rem;
+            }
+            
+            .desktop-nav {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: flex;
+            }
+            
+            .main-content {
+                margin-top: 60px;
+            }
+        }
+
+        /* Адаптивность для мобильных */
+        @media (max-width: 480px) {
+            .header-container {
+                padding: 0 10px;
+            }
+            
+            .logo h1 {
+                font-size: 1.1rem;
+            }
+            
+            .footer-container {
+                padding: 0 15px;
+            }
+            
+            .footer-link {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .footer-logo {
+                height: 35px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="currency-header">
+        <h1>Курс USD в банках</h1>
+        <p>Актуальные курсы покупки и продажи на сегодня</p>
+        <a href="index.html" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Назад к основным курсам
+        </a>
+    </div>
+
+    <div class="currencies-container">
+        <!-- Карточка Сбербанка -->
+        <div class="currency-card">
+            <div class="currency-info">
+                <div class="bank-name">Сбербанк</div>
+            </div>
+            <div class="currency-rate">
+                <div class="rate-label">Покупка</div>
+                <div class="rate-value">89.50₽</div>
+            </div>
+            <div class="currency-change">
+                <div class="change-label">Продажа</div>
+                <div class="change-value">91.20₽</div>
+            </div>
+        </div>
+
+        <!-- Карточка Тинькофф Банка -->
+        <div class="currency-card">
+            <div class="currency-info">
+                <div class="bank-name">Тинькофф Банк</div>
+            </div>
+            <div class="currency-rate">
+                <div class="rate-label">Покупка</div>
+                <div class="rate-value">89.30₽</div>
+            </div>
+            <div class="currency-change">
+                <div class="change-label">Продажа</div>
+                <div class="change-value">91.40₽</div>
+            </div>
+        </div>
+
+        <!-- Карточка Газпромбанка -->
+        <div class="currency-card">
+            <div class="currency-info">
+                <div class="bank-name">Газпромбанк</div>
+            </div>
+            <div class="currency-rate">
+                <div class="rate-label">Покупка</div>
+                <div class="rate-value">89.70₽</div>
+            </div>
+            <div class="currency-change">
+                <div class="change-label">Продажа</div>
+                <div class="change-value">91.10₽</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Обновляем дату в заголовке
+        const now = new Date();
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        const dateString = now.toLocaleDateString('ru-RU', options);
+        document.querySelector('.currency-header p').textContent = `Актуальные курсы покупки и продажи на ${dateString}`;
+
+        // Добавь этот скрипт в существующий тег script
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                mobileNav.classList.toggle('active');
+            });
+
+            // Закрытие мобильного меню при клике на ссылку
+            document.querySelectorAll('.mobile-nav .nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenuBtn.classList.remove('active');
+                    mobileNav.classList.remove('active');
+                });
+            });
+
+            // Закрытие мобильного меню при клике вне его
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.header-container')) {
+                    mobileMenuBtn.classList.remove('active');
+                    mobileNav.classList.remove('active');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
